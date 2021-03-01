@@ -1,0 +1,21 @@
+NAME: Conner Yang
+EMAIL: conneryang@g.ucla.edu
+ID: 905417287
+
+Contents of the file:
+---------------------
+- The lab0.c file, which copies input to output
+- A Makefile to build the program and tarball for submission
+- Two screenshots from gdb
+      backtrace.png (showing a segfault and associated stack-trace)
+      breakpoint.png (showing a breakpoint and variable inspection)
+- this README file
+
+
+Smoke-test cases in the check target:
+-------------------------------------
+stdCopyTest- checks if the program works with no options
+fdRedirectionTest- checks if the program works using the file descriptor redirection
+segmentationTest- checks the --segfault option
+catchTest- checks the --catch option
+invalidOptionsTest- checks for the correct exit status when an invalid option is given

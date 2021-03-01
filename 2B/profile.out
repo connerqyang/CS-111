@@ -1,0 +1,186 @@
+Total: 955 samples
+     928  97.2%  97.2%      928  97.2% lock_func
+       6   0.6%  97.8%       13   1.4% SortedList_insert
+       4   0.4%  98.2%       14   1.5% SortedList_lookup
+       2   0.2%  98.4%        2   0.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:239
+       2   0.2%  98.6%        2   0.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1709
+       1   0.1%  98.7%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:165
+       1   0.1%  98.8%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:202
+       1   0.1%  99.0%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:227
+       1   0.1%  99.1%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:233
+       1   0.1%  99.2%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:238
+       1   0.1%  99.3%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:239
+       1   0.1%  99.4%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:971
+       1   0.1%  99.5%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1056
+       1   0.1%  99.6%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1149
+       1   0.1%  99.7%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1244
+       1   0.1%  99.8%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1593
+       1   0.1%  99.9%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       1   0.1% 100.0%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       0   0.0% 100.0%      955 100.0% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:118
+       0   0.0% 100.0%      955 100.0% start_thread
+       0   0.0% 100.0%      955 100.0% thread_worker
+ROUTINE ====================== thread_worker in /u/cs/ugrad/conner/cs111/2B/lab2_list.c
+     0    955 Total samples (flat / cumulative)
+     .      .  140:         exit(1);
+     .      .  141:     }
+     .      .  142: }
+     .      .  143: 
+     .      .  144: void* thread_worker(void* threadID)
+---
+     .      .  145: {
+     .      .  146:     int thread_id = *(int*) threadID;
+     .      .  147:     int list_num = 0;
+     .      .  148:     struct timespec start_time, end_time;
+     .      .  149:     // Insert elements into linked list
+     .      .  150:     for (int i = 0; i < num_iterations; i++)
+     .      .  151:     {
+     .      .  152:         list_num = hashkey((pool[thread_id] + i)->key);
+     .      .  153:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .    671  154:         lock_func(list_num);
+     .      .  155:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  156:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .     13  157:         SortedList_insert(lists + list_num, (pool[thread_id]) + i);
+     .      .  158:         unlock_func(list_num);
+     .      .  159:     }
+     .      .  160: 
+     .      .  161:     
+     .      .  162:     int total_length = 0;
+     .      .  163:         // Checks length (in order to check for corruption)
+     .      .  164:     for (list_num = 0; list_num < num_lists; list_num++)
+     .      .  165:     {
+     .      .  166:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .      .  167:         lock_func(list_num);
+     .      .  168:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  169:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .      .  170:         int cur_length = SortedList_length(lists + list_num);
+     .      .  171:         if (cur_length != 0)
+     .      .  172:         {
+     .      .  173:             fprintf(stderr, "Race condition during length function!\n");
+     .      .  174:             exit(2);
+     .      .  175:         }
+     .      .  176:         total_length += cur_length;
+     .      .  177:         unlock_func(list_num);
+     .      .  178:     }
+     .      .  179:         // Double-check
+     .      .  180:     if (total_length != 0)
+     .      .  181:     {
+     .      .  182:         fprintf(stderr, "Race condition during length function!\n");
+     .      .  183:         exit(2);
+     .      .  184:     }
+     .      .  185: 
+     .      .  186:     
+     .      .  187:         // Lookup each inserted element and delete
+     .      .  188:     for (int i = 0; i < num_iterations; i++)
+     .      .  189:     {
+     .      .  190:         list_num = hashkey((pool[thread_id] + i)->key);
+     .      .  191:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .    257  192:         lock_func(list_num);
+     .      .  193:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  194:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .     14  195:         SortedListElement_t* e = SortedList_lookup(lists + list_num, pool[thread_id][i].key);
+     .      .  196:           // Check for race conditions
+     .      .  197:         if (e == NULL)
+     .      .  198:         {
+     .      .  199:             fprintf(stderr, "Race condition during lookup!\n");
+     .      .  200:             exit(2);
+     .      .  201:         }
+     .      .  202:           // Delete and check for race conditions
+     .      .  203:         if (SortedList_delete(e) == 1)
+     .      .  204:         {
+     .      .  205:             fprintf(stderr, "Race condition during delete!\n");
+     .      .  206:             exit(2);
+     .      .  207:         }
+     .      .  208:         unlock_func(list_num);
+     .      .  209:     }
+     .      .  210: 
+     .      .  211:     return NULL;
+     .      .  212: }
+---
+     .      .  213: 
+     .      .  214: void print_out(long long total_runtime)
+     .      .  215: {
+     .      .  216:         // Get average time per operation
+     .      .  217:     int operations = 3 * num_threads * num_iterations;
+ROUTINE ====================== thread_worker in /u/cs/ugrad/conner/cs111/2B/lab2_list.c
+     0    955 Total samples (flat / cumulative)
+     .      .  140:         exit(1);
+     .      .  141:     }
+     .      .  142: }
+     .      .  143: 
+     .      .  144: void* thread_worker(void* threadID)
+---
+     .      .  145: {
+     .      .  146:     int thread_id = *(int*) threadID;
+     .      .  147:     int list_num = 0;
+     .      .  148:     struct timespec start_time, end_time;
+     .      .  149:     // Insert elements into linked list
+     .      .  150:     for (int i = 0; i < num_iterations; i++)
+     .      .  151:     {
+     .      .  152:         list_num = hashkey((pool[thread_id] + i)->key);
+     .      .  153:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .    671  154:         lock_func(list_num);
+     .      .  155:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  156:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .     13  157:         SortedList_insert(lists + list_num, (pool[thread_id]) + i);
+     .      .  158:         unlock_func(list_num);
+     .      .  159:     }
+     .      .  160: 
+     .      .  161:     
+     .      .  162:     int total_length = 0;
+     .      .  163:         // Checks length (in order to check for corruption)
+     .      .  164:     for (list_num = 0; list_num < num_lists; list_num++)
+     .      .  165:     {
+     .      .  166:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .      .  167:         lock_func(list_num);
+     .      .  168:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  169:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .      .  170:         int cur_length = SortedList_length(lists + list_num);
+     .      .  171:         if (cur_length != 0)
+     .      .  172:         {
+     .      .  173:             fprintf(stderr, "Race condition during length function!\n");
+     .      .  174:             exit(2);
+     .      .  175:         }
+     .      .  176:         total_length += cur_length;
+     .      .  177:         unlock_func(list_num);
+     .      .  178:     }
+     .      .  179:         // Double-check
+     .      .  180:     if (total_length != 0)
+     .      .  181:     {
+     .      .  182:         fprintf(stderr, "Race condition during length function!\n");
+     .      .  183:         exit(2);
+     .      .  184:     }
+     .      .  185: 
+     .      .  186:     
+     .      .  187:         // Lookup each inserted element and delete
+     .      .  188:     for (int i = 0; i < num_iterations; i++)
+     .      .  189:     {
+     .      .  190:         list_num = hashkey((pool[thread_id] + i)->key);
+     .      .  191:         clock_gettime(CLOCK_MONOTONIC, &start_time);
+     .    257  192:         lock_func(list_num);
+     .      .  193:         clock_gettime(CLOCK_MONOTONIC, &end_time);
+     .      .  194:         total_wait_time += (1000000000 * (end_time.tv_sec - start_time.tv_sec) + end_time.tv_nsec - start_time.tv_nsec);
+     .     14  195:         SortedListElement_t* e = SortedList_lookup(lists + list_num, pool[thread_id][i].key);
+     .      .  196:           // Check for race conditions
+     .      .  197:         if (e == NULL)
+     .      .  198:         {
+     .      .  199:             fprintf(stderr, "Race condition during lookup!\n");
+     .      .  200:             exit(2);
+     .      .  201:         }
+     .      .  202:           // Delete and check for race conditions
+     .      .  203:         if (SortedList_delete(e) == 1)
+     .      .  204:         {
+     .      .  205:             fprintf(stderr, "Race condition during delete!\n");
+     .      .  206:             exit(2);
+     .      .  207:         }
+     .      .  208:         unlock_func(list_num);
+     .      .  209:     }
+     .      .  210: 
+     .      .  211:     return NULL;
+     .      .  212: }
+---
+     .      .  213: 
+     .      .  214: void print_out(long long total_runtime)
+     .      .  215: {
+     .      .  216:         // Get average time per operation
+     .      .  217:     int operations = 3 * num_threads * num_iterations;

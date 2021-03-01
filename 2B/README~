@@ -1,0 +1,68 @@
+NAME: Conner Yang
+EMAIL: conneryang@g.ucla.edu
+ID: 905417287
+
+Contents of the submission:
+----------------------------
+- SortedList.h
+	Header file describing interface for linked list
+- SortedList.c
+	Implements various functions for a sorted doubly linked list
+	Includes yield calls
+- lab2_list.c
+	Implements/tests parallel threads that do shared linked list operations, and produces relevant statistics. Catches and reports segmentation faults
+- Makefile
+	Tests C programs, generates graphs and execution profiling report, and builds submission tarball
+- lab2_list.csv
+	Contains results of all test runs
+- .png files, created by gunplot on the above .csv files with data reduction scripts
+	lab2b_1.png -> throughput vs. # threads for mutex and spin-lock synchronized list ops
+	lab2b_2.png -> mean time per mutex wait, and mean time per op for mutex-synch list ops
+	lab2b_3.png -> successful iterations vs. threads for each synchronization method
+	lab2b_4.png -> throughput vs. # threads for mutex synchronized partitioned lists
+	lab2b_5.png -> throughput vs. # threads for spin-lock-synchronized partitioned lists
+- this README file
+
+Places I used to research in order to help me complete the project:
+-------------------------------------------------------------------
+-Discussion 1B and 1E slides for pseudocode and 
+
+Questions:
+------------
+2.3.1 - Cycles in the basic list implementation:
+      In the 1 and 2-thread list tests, most of the cycles are spent doing doubly-linked list
+      operations, because since there are so few threads, then synchronization becomes less relevant
+      in terms of time-expense, and the locks are more likely to be available, so less time is spent
+      waiting for locks (in the case of one thread, no time needs to be spent waiting for locks to be
+      freed!).
+      For the high-thread spin-lock tests, most of the time/cycles are being spent as threads spin
+      repetitively while waiting for locks to be unlocked.
+      For the high-thread mutex tests, most of the time/cycles are being spent performing mutex
+      functions (such as those attempting to acquire locks), as these will be called often as the
+      high number of threads all contend over the lock to perform the critical sections, and they
+      are expensive functions to call.
+
+2.3.2 - Execution Profiling:
+      The following line is consuming most of the cycles of the spin-lock version with a large number of threads:
+      	  lock_func();
+      This function is called in the thread function before each critical section. This operation becomes so
+      expensive with large numbers of threads because there is more contention for the locks in order to perform
+      the critical section of operations, and so with more threads, more threads spend time idly spinning, waiting
+      for the spinlock to release, spending many CPU cycles, which accounts for the profile outcome.
+
+2.3.3 - Mutex Wait Time:
+      The average lock-wait time rises so dramatically with the number of contending threads because only one thread can perform the
+      locked operations, and all of the rest of the threads must wait. Therefore, with more threads, there is more contention for the
+      locks. Each additional thread must wait for all other threads to complete the locked critical section, and simply waits until
+      then, which is why the average lock-wait time rises with increasing threads.
+
+      The completion time per operation rise (less dramatically) with the number of contending threads because it does not consider
+      the time threads spend individually waiting for locks, and simply considers the total wait time. All threads are simply waiting
+      for one thread, and for the completion time, it does not really matter how many threads are waiting. However, the completion
+      time still rises (less dramatiaclly) for increasing threads, as there is some expensive overhead for the context switches,
+      creation, and joining involved with each additional thread.
+
+      The wait time per operation goes up faster/higher than the completion time per operation because each individual thread's
+      wait time is individually summed up, and all threads but one can be in the waiting state, so there is naturally overlap between
+      the individual wait time's that are being overlapped. However, the completion time does not have any overlap, and as stated before,
+      only considers the total time. Therefore, the wait time per operation can rise faster than the completion time per operation.

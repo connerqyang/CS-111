@@ -1,0 +1,13 @@
+#NAME: Conner Yang                                                              
+#EMAIL: conneryang@g.ucla.edu                                                   
+#ID: 905417287                                                                  
+
+
+default:
+	gcc -Wall -Wextra -g -o lab1a lab1a.c
+
+clean:
+	rm -f *.txt *.tar.gz *.o lab1a lab1a-905417287.tar.gz
+
+dist:
+	tar -cvzf lab1a-905417287.tar.gz lab1a.c Makefile README

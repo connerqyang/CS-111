@@ -1,0 +1,9 @@
+NAME: Conner Yang
+EMAIL: conneryang@g.ucla.edu
+ID: 905417287
+
+Contents of the submission:
+---------------------
+- The lab1a.c file, which demonstrates terminal I/O and inter-process communication
+- A Makefile to build the program and tarball for submission
+- this README file

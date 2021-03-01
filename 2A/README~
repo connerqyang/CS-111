@@ -1,0 +1,68 @@
+NAME: Conner Yang
+EMAIL: conneryang@g.ucla.edu
+ID: 905417287
+
+Contents of the submission:
+----------------------------
+- lab2_add.c
+	Implements/tests shared variable add function, produces relevant statistics
+- SortedList.h
+	Header file describing interface for linked list
+- SortedList.c
+	Implements various functions for a sorted doubly linked list
+	Includes yield calls
+- lab2_list.c
+	Implements/tests shared linked list operations, and produces relevant statistics
+- Makefile
+	Tests C programs, generates graphs, and builds submission tarball
+- lab2_add.csv
+	Contains results of add function
+- lab2_list.csv
+	Contains results of linked list functions
+- .png files, created by gunplot on the above .csv files with data reduction scripts
+	lab2_add-1.png -> threads and iterations required for a failure, with and without yields
+	lab2_add-2.png -> average time per operation with and without yields
+	lab2_add-3.png -> average time per single threaded operation vs # iterations
+	lab2_add-4.png -> threads and iterations that run successfully with yields and sync
+	lab2_add-5.png -> average time per protected operation vs # threads
+
+	lab2_list-1.png -> average time per single threaded unprotected op vs # iterations
+	lab2_list-2.png -> threads/iterations required to generate failure, with and without yields
+	lab2_list-3.png -> iterations that can run protected without failure
+	lab2_list-4.png -> length-adjusted cost per op vs # threads for various synch options
+- this README file
+
+Places I used to research in order to help me complete the project:
+-------------------------------------------------------------------
+-Stack Overflow forum on generating random numbers
+	https://stackoverflow.com/questions/19724346/generate-random-characters-in-c
+-man pages for pthread_create and pthread_join functions
+-Discussion 1B and 1E slides for pseudocode and 
+
+Questions:
+------------
+2.1.1 - causing conflicts:
+	It takes many iterations before errors are seen because when there are a small number of iterations, then threads are able to complete execution before other threads even begin execution, erasing the possibility of a race error. If there are a high amount of iterations, then the execution of threads will overlap, and multiple threads may attempt to add to the shared variable at the same time, causing an error.
+
+2.1.2 - cost of yielding:
+	The --yield runs are so much slower because for every add operation, the process yields to the kernel, which requires a time-expending context switch. For example, in order to context switch, operations such as saving registers to memory must be performed. The lost time goes towards this context switch.
+	It is impossible to get valid per-operation timings using the --yield option as a user, because the kernel is heavily involved in the context switch, which is out of the scope of our user code, making the time spent by the kernel difficult to measure as a user.
+
+2.1.3 - measurement errors:
+	The average cost per operation drops because with increasing iterations, more operations are performed. Relative to the time costs of creating and joining threads, individual operations are insignificant. Therefore, since we are already going through the trouble of creating multiple threads, it actually lowers our per-operation cost to simply add more operations/iterations.
+
+2.1.4 - costs of serialization:
+	All of the options perform similarly for low numbers of threads because with a low number of threads, threads are less likely to contend for the ability to perform the add function, and thus the locks are less likely to be used.
+	However, all three protected operations slow down as the number of threads rises because the different threads contend for the ability to perform the add function to the shared variable, and are slowed down by the lock protections (which prevent threads from updating a shared variable at the same time).
+
+2.2.1 - scalability of Mutex:
+	For Part-1, the derivative of the graph seems to decrease and the graph levels off as the number of threads increases. However, for Part-2, the graph increases linearly with the number of threads. This is likely because the time complexity of addition (Part-1) is O(1), while the time complexity of the four implemented linked list functions are O(n). Looking at graphs of a constant and n, this explains the graphs.
+
+2.2.2 - scalability of spin locks:
+	Both mutex and spin locks have very similar, linear trends of time per protected operation vs the number of threads. Their linear shape is likely due to the O(n) time complexity mentioned above. Looking at the graphs, it appears that mutex protect operations tend to become slightly faster than spin locks as the number of threads increases.
+
+
+
+
+
+

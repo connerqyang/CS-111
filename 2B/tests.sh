@@ -1,0 +1,28 @@
+#NAME: Conner Yang
+#EMAIL: conneryang@g.ucla.edu
+#ID: 905417287
+
+#lab2b_1.png and lab2b_2.png
+for t in 1 2 4 8 12 16 24; do
+    for st in s m; do
+	./lab2_list --iterations=1000 --threads=$t --sync=$st >> lab2b_list.csv
+    done
+done
+
+#lab2b_3.png
+for t in 1 4 8 12 16; do
+    for i in 10 20 40 80; do
+	for st in s m; do
+	    ./lab2_list --iterations=$i --threads=$t --sync=$st --yield=id --lists=4 >> lab2b_list.csv
+	done
+    done
+done
+
+#lab2b_4.png and lab2b_5.png
+for t in 1 2 4 8 12; do
+    for nl in 1 4 8 16; do
+	for st in s m; do
+	    ./lab2_list --iterations=1000 --sync=$st --threads=$t --lists=$nl >> lab2b_list.csv
+	done
+    done
+done
